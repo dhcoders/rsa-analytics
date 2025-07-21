@@ -1,0 +1,1 @@
+{"position": "CM", "aspects": [{"name": "Ball-Winning", "metrics": ["EFx Aerial Duels", "EFx Duels", "Total Duel %"]}, {"name": "Pass Safety", "metrics": ["Accurate passes, %", "Accurate long passes, %", "EFx Prog. Pass"]}], "aspect_weights": {"Ball-Winning": 50, "Pass Safety": 50}}
