@@ -59,13 +59,13 @@ POSITION_CONFIGS = {
             },
             'Conductor': {
                 'Duel Volume': 0.1,
-                'Ball Winning': 0.1,
-                'Ball Security': 0.25,
-                'Mobility': 0.1,
+                'Ball Winning': 0.15,
+                'Ball Security': 0.35,
+                'Mobility': 0.0,
                 'Deep Pen': 0.35,
                 'Creation': 0.0,
                 'Box-Crashing': 0.0,
-                'Adv Pen': 0.1
+                'Adv Pen': 0.05
             },
             'Attacking Box-Crasher': {
                 'Duel Volume': 0.1,
