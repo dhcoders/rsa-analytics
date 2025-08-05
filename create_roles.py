@@ -129,7 +129,7 @@ def process_wyscout_data(df, minimum_minutes=1000):
     # Position mapping
     position_mapping = {
         'GK': ['GK'],
-        'CB': ['CB', 'LCB', 'RCB'],
+        'CB': ['CB', 'LCB', 'RCB'],  # Will be split into IP and OOP versions below
         'FB': ['LB', 'RB', 'RWB', 'LWB'],
         'CM': ['DMF', 'LCMF', 'RCMF', 'LDMF', 'RDMF', 'AMF'],
         'WM': ['LW', 'RW', 'RWF', 'LWF', 'RAMF', 'LAMF'],
@@ -145,7 +145,7 @@ def process_wyscout_data(df, minimum_minutes=1000):
     # Apply mapping
     df['Position'] = df['Position'].apply(lambda x: reverse_mapping.get(x, x) if isinstance(x, str) else x)
     
-    # Filter for minimum minutes (now user-controlled)
+    # Filter for minimum minutes
     df = df[df['Minutes played'] >= minimum_minutes]
     
     # Fill null values
@@ -260,9 +260,9 @@ with col1:
     )
 with col2:
     possession_adjusted = st.checkbox(
-        "Possession Adjusted Data",
+        "Apply Defensive Possession Adjustments",
         value=False,
-        help="Adjust defensive stats based on team possession to enable fair comparison across different playing styles"
+        help="Adjust defensive stats based on team possession to enable more accurate comparisons"
     )
 with col3:
     st.write("")  # Add spacing
@@ -334,7 +334,7 @@ if uploaded_file is not None:
 
 else:
     # Option to use default PL data
-    use_default = st.checkbox("Use default Premier League data for testing")
+    use_default = st.checkbox("Use PL 24/25 data (no upload required)")
     if use_default:
         df = load_data(min_minutes)
         
@@ -364,7 +364,22 @@ if df is not None:
     
     # Position selection (common to both modes)
     if analysis_mode == "🎯 Predefined Roles":
-        available_positions = [pos for pos in sorted(df['Position'].unique()) if pos in POSITION_CONFIGS]
+        data_positions = set(df['Position'].unique())
+        config_positions = list(POSITION_CONFIGS.keys())
+        
+        available_positions = []
+        for config_pos in config_positions:
+            # Handle CB variants - both map to CB data
+            if config_pos in ['IP: CB', 'OOP: CB']:
+                if 'CB' in data_positions:
+                    available_positions.append(config_pos)
+            else:
+                # Regular position matching
+                if config_pos in data_positions:
+                    available_positions.append(config_pos)
+        
+        available_positions = sorted(available_positions)
+        
         if not available_positions:
             st.warning("No supported positions found in the data. Supported positions: " + 
                       ", ".join(POSITION_CONFIGS.keys()))

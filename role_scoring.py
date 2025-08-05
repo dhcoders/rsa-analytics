@@ -6,84 +6,82 @@ from scipy.stats import gmean
 POSITION_CONFIGS = {
     'CM': {
         'aoi_mapping': {
-            'Duel Volume': [
-                'EFx Aerial Duels',
-                'EFx Ground Duels'
-            ],
-            'Ball Winning': [
-                'Interceptions per 90',
-                'Successful defensive actions per 90',
-                'Total Duel %'
-            ],
-            'Mobility': [
-                'Progressive runs per 90',
-                'Accelerations per 90',
-                'Dribbles per 90'
-            ],
-            'Deep Pen': [
-                'EFx Prog. Pass',
-                'Passes to final third per 90',
-                'P2P'
-            ],
-            'Adv Pen': [
-                'Passes to penalty area per 90',
-                'Passes to final third per 90',
-                'PPA Share',
-                'Deep completions per 90'
-            ],
-            'Creation': [
-                'xA per 90',
-                'Key passes per 90',
-            ],
-            'Ball Security': [
-                'Accurate passes, %',
-                'Successful dribbles, %'
-            ],
-            'Box-Crashing': [
-                'Touches in box per 90',
-                'Successful attacking actions per 90',
-                'xG per 90',
-                'xG per Shot'
-            ]
+            'Duel Volume': {
+                'EFx Aerial Duels': 0.5,
+                'EFx Ground Duels': 0.5
+            },
+            'Ball Winning': {
+                'Interceptions per 90': 0.4,
+                'Successful defensive actions per 90': 0.4,
+                'Total Duel %': 0.2
+            },
+            'Mobility': {
+                'Progressive runs per 90': 0.4,
+                'Accelerations per 90': 0.3,
+                'Dribbles per 90': 0.3
+            },
+            'Deep Pen': {
+                'EFx Prog. Pass': 0.5,
+                'Passes to final third per 90': 0.3,
+                'P2P': 0.2
+            },
+            'Adv Pen': {
+                'Passes to penalty area per 90': 0.3,
+                'Passes to final third per 90': 0.2,
+                'PPA Share': 0.3, #Rate of passes to PA compared to total passes.
+            },
+            'Creation': {
+                'xA per 90': 0.6,
+                'Key passes per 90': 0.4
+            },
+            'Ball Security': {
+                'Accurate passes, %': 0.7,
+                'Successful dribbles, %': 0.3
+            },
+            'Box-Crashing': {
+                'Touches in box per 90': 0.4,
+                'Successful attacking actions per 90': 0.3,
+                'xG per Shot': 0.3
+            }
         },
         'roles': {
             'Ball-Winner': {
-                'Duel Volume': 0.3,
-                'Ball Winning': 0.3,
+                'Duel Volume': 0.4,
+                'Ball Winning': 0.4,
                 'Ball Security': 0.2,
-                'Mobility': 0.1,
-                'Deep Pen': 0.1,
+                'Mobility': 0.0,
+                'Deep Pen': 0.0,
                 'Creation': 0.0,
                 'Box-Crashing': 0.0,
                 'Adv Pen': 0.0
             },
-            'Conductor': {
-                'Duel Volume': 0.1,
-                'Ball Winning': 0.15,
-                'Ball Security': 0.35,
+            'Midfield Conductor': {
+                'Duel Volume': 0.0,
+                'Ball Winning': 0.1,
+                'Ball Security': 0.5,
                 'Mobility': 0.0,
-                'Deep Pen': 0.35,
+                'Deep Pen': 0.4,
                 'Creation': 0.0,
                 'Box-Crashing': 0.0,
-                'Adv Pen': 0.05
+                'Adv Pen': 0.0
             },
             'Attacking Box-Crasher': {
-                'Duel Volume': 0.1,
-                'Ball Winning': 0.1,
-                'Ball Security': 0.1,
-                'Mobility': 0.1,
+                'Duel Volume': 0.2,
+                'Ball Winning': 0.2,
+                'Ball Security': 0.0,
+                'Mobility': 0.0,
                 'Deep Pen': 0.0,
-                'Creation': 0.1,
-                'Box-Crashing': 0.4,
-                'Adv Pen': 0.1
+                'Creation': 0.0,
+                'Box-Crashing': 0.6,
+                'Adv Pen': 0.0
             },
-            'Attacking Creator/#10': {
+            'Creative #10': {
                 'Duel Volume': 0.00,
                 'Ball Winning': 0.0,
-                'Ball Security': 0.1,
-                'Mobility': 0.15,
+                'Ball Security': 0.0,
+                'Mobility': 0.1,
                 'Deep Pen': 0.1,
-                'Creation': 0.35,
+                'Creation': 0.5,
                 'Box-Crashing': 0.0,
                 'Adv Pen': 0.3
             }
@@ -91,202 +89,298 @@ POSITION_CONFIGS = {
     },
     'FB': {
         'aoi_mapping': {
-            'Lockdown': [
-                'Defensive duels won, %',
-                'EFx Ground Duels'
-            ],
-            'Defending': [
-                'Interceptions per 90',
-                'Successful defensive actions per 90',
-                'Aerial duels won, %',
-            ],
-            'Running Pen': [
-                'Progressive runs per 90',
-                'Accelerations per 90',
-                'Dribbles per 90'
-            ],
-            'Pass Pen': [
-                'Progressive passes per 90',
-                'Passes to final third per 90',
-                'Passes to penalty area per 90'
-            ],
-            'Creation': [
-                'xA per 90',
-                'Key passes per 90',
-                'Crosses per 90'
-            ],
-            'Ball Security': [
-                'Accurate passes, %',
-                'Successful dribbles, %'
-            ]
+            'Winger Lockdown': {
+                'Defensive duels won, %': 0.7,
+                'EFx Ground Duels': 0.3
+            },
+            'Defending': {
+                'Interceptions per 90': 0.33,
+                'Successful defensive actions per 90': 0.33,
+                'Aerial duels won, %': 0.34
+            },
+            'Running Pen': {
+                'Progressive runs per 90': 0.33,
+                'Accelerations per 90': 0.33,
+                'Dribbles per 90': 0.34
+            },
+            'Pass Pen': {
+                'Progressive passes per 90': 0.55,
+                'Passes to final third per 90': 0.45,
+
+            },
+            'Creation': {
+                'xA per 90': 0.5,
+                'Key passes per 90': 0.4,
+                'Passes to penalty area per 90': 0.1
+            },
+            'Ball Security': {
+                'Accurate passes, %': 0.5,
+                'Successful dribbles, %': 0.5
+            },
+            'Crossing': {
+                'Acc. Crosses': 0.8,
+                'Deep completed crosses per 90': 0.2
+            }
         },
         'roles': {
             'Penetrator': {
-                'Lockdown': 0.1,
-                'Defending': 0.15,
+                'Winger Lockdown': 0.1,
+                'Defending': 0.1,
                 'Running Pen': 0.0,
-                'Pass Pen': 0.4,
+                'Pass Pen': 0.5,
                 'Creation': 0.2,
-                'Ball Security': 0.15,
+                'Ball Security': 0.1,
+                'Crossing': 0.0,
             },
             'Runner': {
-                'Lockdown': 0.1,
-                'Defending': 0.15,
-                'Running Pen': 0.4,
+                'Winger Lockdown': 0.1,
+                'Defending': 0.1,
+                'Running Pen': 0.5,
                 'Pass Pen': 0.0,
                 'Creation': 0.2,
-                'Ball Security': 0.15,
+                'Ball Security': 0.1,
+                'Crossing': 0.0,
             },
             'Padlock': {
-                'Lockdown': 0.4,
-                'Defending': 0.35,
-                'Running Pen': 0.05,
-                'Pass Pen': 0.05,
+                'Winger Lockdown': 0.5,
+                'Defending': 0.4,
+                'Running Pen': 0.0,
+                'Pass Pen': 0.0,
                 'Creation': 0.0,
-                'Ball Security': 0.15,
+                'Ball Security': 0.1,
+                'Crossing': 0.0,
             },
-            'Creator': {
-                'Lockdown': 0.1,
-                'Defending': 0.1,
-                'Running Pen': 0.1,
-                'Pass Pen': 0.2,
-                'Creation': 0.35,
-                'Ball Security': 0.15,
+            'General Creator': {
+                'Winger Lockdown': 0.0,
+                'Defending': 0.0,
+                'Running Pen': 0.0,
+                'Pass Pen': 0.3,
+                'Creation': 0.6,
+                'Ball Security': 0.0,
+                'Crossing': 0.1,
+            },
+            'Whipper': {
+                'Winger Lockdown': 0.0,
+                'Defending': 0.0,
+                'Running Pen': 0.0,
+                'Pass Pen': 0.0,
+                'Creation': 0.4,
+                'Ball Security': 0.0,
+                'Crossing': 0.6,
+            },
+            'Reliable Retainer': {
+                'Winger Lockdown': 0.1,
+                'Defending': 0.2,
+                'Running Pen': 0.0,
+                'Pass Pen': 0.0,
+                'Creation': 0.0,
+                'Ball Security': 0.7,
+                'Crossing': 0.0,
             }
         }
     },
-    'CB': {
+    'IP: CB': {
         'aoi_mapping': {
-            'Wide Def': [
-                'EFx Ground Duels',
-                'Defensive duels won, %'
-            ],
-            'Aggression': [
-                'Defensive duels per 90',
-                'Sliding tackles per 90',
-                'Successful defensive actions per 90'
-            ],
-            'Deeper Def': [
-                'EFx Aerial Duels',
-                'Shots blocked per 90',
-                'Interceptions per 90'
-            ],
-            'Carrying': [
-                'Progressive runs per 90',
-                'Dribbles per 90',
-            ],
-            'Pass Pen': [
-                'Progressive passes per 90',
-                'Passes to final third per 90',
-                'Accurate forward passes, %',
-                'P2P'
-            ],
-            'Ball Security': [
-                'Accurate passes, %',
-                'Successful dribbles, %'
-            ],
+            'Dribble Security': {
+                'Successful dribbles, %': 1
+            },
+            'Carrying': {
+                'Progressive runs per 90': 0.5,
+                'PrgCarries_ToRec': 0.5 #More accurate measure of tendency to carry the ball forward - possession independent.
+            },
+            'Pass Pen': {
+                'EFx Prog. Pass': 0.35,
+                'P2P': 0.65 #More accurate measure of the tendency to progress ball via pass - possession independent.
+            },
+            'Pass Security': {
+                'Accurate passes, %': 1
+            }
         },
         'roles': {
-            'Ball Player': {
-                'Aggression': 0.1,
-                'Wide Def': 0.1,
-                'Deeper Def': 0.05,
-                'Pass Pen': 0.3,
-                'Ball Security': 0.25,
-                'Carrying': 0.2
+            'Penetrative Ball Player': {
+                'Pass Pen': 0.5,
+                'Carrying': 0.5,
+                'Dribble Security': 0,
+                'Pass Security': 0.0
             },
-            'Aggressor': {
-                'Aggression': 0.65,
-                'Wide Def': 0.2,
-                'Deeper Def': 0.2,
+            'Fwd Carrier': {
                 'Pass Pen': 0.0,
-                'Ball Security': 0.0,
-                'Carrying': 0.0,
+                'Carrying': 0.9,
+                'Dribble Security': 0.1,
+                'Pass Security': 0.0
             },
-            'Protector': {
+            'Fwd Passer': {
+                'Pass Pen': 0.9,
+                'Carrying': 0.0,
+                'Dribble Security': 0.0,
+                'Pass Security': 0.1
+            },
+            'Safe Ball Player': {
+                'Pass Pen': 0.0,
+                'Carrying': 0.0,
+                'Dribble Security': 0.5,
+                'Pass Security': 0.5
+            }
+        }
+    },
+    'OOP: CB': {
+        'aoi_mapping': {
+            'Gr. Duel Vol.': {
+                'EFx Ground Duels': 1
+            },
+            'Aerial Duel Vol.': {
+                'EFx Aerial Duels': 1
+            },
+            'Gr. Duel Success': {
+                'Defensive duels won, %': 1
+            },
+            'Aerial Duel Success': {
+                'Aerial duels won, %': 1
+            },
+            'Aggression': {
+                'Sliding tackles per 90': 0.33,
+                'Successful defensive actions per 90': 0.34,
+                'Fouls per 90': 0.33
+            },
+            'Box Def': {
+                'Shots blocked per 90': 0.5,
+                'Interceptions per 90': 0.5
+            }
+        },
+        'roles': {
+            'Aggressive Dueler': { #Prioritises volume of duels, not success. Flies into lots of duels.
                 'Aggression': 0.2,
-                'Wide Def': 0.15,
-                'Deeper Def': 0.65,
-                'Pass Pen': 0.0,
-                'Ball Security': 0.0,
-                'Carrying': 0.0,
+                'Box Def': 0.0,
+                'Gr. Duel Vol.': 0.4,
+                'Aerial Duel Vol.': 0.4,
+                'Gr. Duel Success': 0.0,
+                'Aerial Duel Success': 0.0,
+            },
+            'Box Protector': { #Prioritises metrics focused on deeper defensive action volume.
+                'Aggression': 0.0,
+                'Box Def': 0.34,
+                'Gr. Duel Vol.': 0.0,
+                'Aerial Duel Vol.': 0.33,
+                'Gr. Duel Success': 0.0,
+                'Aerial Duel Success': 0.33,
+            },
+            'Passive Dueler': { #Prioritises success of duels, not volume. Wins duels, but doesn't fly into them.
+                'Aggression': 0.0,
+                'Box Def': 0.0,
+                'Gr. Duel Vol.': 0.0,
+                'Aerial Duel Vol.': 0.0,
+                'Gr. Duel Success': 0.5,
+                'Aerial Duel Success': 0.5,
+            },
+            'Wide Defender': { #Prioritises ground duelling success and volume, key for WCBs.
+                'Aggression': 0.0,
+                'Box Def': 0.0,
+                'Gr. Duel Vol.': 0.5,
+                'Aerial Duel Vol.': 0.0,
+                'Gr. Duel Success': 0.5,
+                'Aerial Duel Success': 0.0,
+            },
+            'Duel Dominator': { #Combines high volume and successful duelling.
+                'Aggression': 0.0,
+                'Box Def': 0.0,
+                'Gr. Duel Vol.': 0.3,
+                'Aerial Duel Vol.': 0.3,
+                'Gr. Duel Success': 0.2,
+                'Aerial Duel Success': 0.2,
             }
         }
     },
     'CF': {
         'aoi_mapping': {
-            'Goal Generation': [
-                'xG per 90',
-                'Shots per 90',
-            ],
-            'Box-Dominance': [
-                'Touches in box per 90'
-            ],
-            'Hold-up': [
-                'Received long passes per 90',
-                'EFx Aerial Duels'
-            ],
-            'Link Up': [
-                'Received passes per 90',
-                'Accurate short / medium passes, %',
-                'Smart passes per 90'
-            ],
-            'Creativity': [
-                'xA per 90',
-                'Key passes per 90',
-                'Passes to penalty area per 90'
-            ]
+            'Goal Generation': {
+                'xG per 90': 0.5, #This is our proxy for the quality of chance the player is involved in
+                'Shots per 90': 0.5 #This is our proxy for the quantity of chances the player is able to generate.
+            },
+            'Box-Dominance': { 
+                'Touches in box per 90': 0.34,
+                'xG per Shot': 0.33, #Idea is that shots inside the box carry more xG than shots outside the box, so higher avg xG per shot is better.
+                'Head goals per 90': 0.33 # You can't header outside the box
+            },
+            'Hold-up': { #weighted to favour players who get into more aerial duels - we are thinking of this as a "target forward"-focused AOI
+                'Received long passes per 90': 0.3,
+                'EFx Aerial Duels': 0.5,
+                'Offensive duels per 90': 0.2 #Off. duels are dribbles, but also just when players hold off other players whilst in poss. Lower weighting, but relevant.
+            },
+            'Link Up': {
+                'Received passes per 90': 0.33, #Not ideal as a measure, but more rec. passes = dropping in and linking up more.
+                'Accurate short / medium passes, %': 0.33, #indicates reliability of passes.
+                'Smart passes per 90': 0.34 #defined as a creative and penetrative pass that aims to gain significant advantage, seems ideal for link-up.
+            },
+            'Creativity': {
+                'xA per 90': 0.34,
+                'Key passes per 90': 0.33,
+                'Passes to penalty area per 90': 0.33
+            },
+            'Ball Carrier': {
+                'Progressive runs per 90': 0.5, #how often do they carry the ball forward?
+                'Dribbles per 90': 0.5 #is the player someone who likes to carry?
+            }
         },
         'roles': {
             'Target Forward': {
-                'Goal Generation': 0.2,
-                'Hold-up': 0.35,
-                'Link Up': 0.15,
-                'Creativity': 0.1,
-                'Box-Dominance': 0.2
-            },
-            'Roaming Enabler': {
-                'Goal Generation': 0.2,
-                'Hold-up': 0.1,
-                'Link Up': 0.25,
-                'Creativity': 0.35,
-                'Box-Dominance': 0.1
-            },
-            'Box-Dominator': {
-                'Goal Generation': 0.35,
-                'Hold-up': 0.1,
+                'Goal Generation': 0.3,
+                'Hold-up': 0.4,
                 'Link Up': 0.1,
                 'Creativity': 0.1,
-                'Box-Dominance': 0.35
+                'Box-Dominance': 0.1,
+                'Ball Carrier': 0.0
+            },
+            'Roaming Enabler': {
+                'Goal Generation': 0.0,
+                'Hold-up': 0.0,
+                'Link Up': 0.35,
+                'Creativity': 0.45,
+                'Box-Dominance': 0.0,
+                'Ball Carrier': 0.2 #we want to avoid players who are too static - they need to ROAM.
+            },
+            'Box-Dominator': {
+                'Goal Generation': 0.5,
+                'Hold-up': 0,
+                'Link Up': 0,
+                'Creativity': 0,
+                'Box-Dominance': 0.5,
+                'Ball Carrier': 0.0
+            },
+            'Channel Runner': {
+                'Goal Generation': 0,
+                'Hold-up': 0.1,
+                'Link Up': 0.3,
+                'Creativity': 0.1,
+                'Box-Dominance': 0.0,
+                'Ball Carrier': 0.5 #big focus on ball carrying. 
             }
         }
     },
     'WM': {
         'aoi_mapping': {
-            'Goal Focus': [
-                'xG per 90',
-                'Shots per 90',
-                'Touches in box per 90'
-            ],
-            'Takeon': [
-                'Dribbles per 90',
-                'Successful dribbles, %'
-            ],
-            'Creativity': [
-                'xA per 90',
-                'Key passes per 90',
-                'Passes to penalty area per 90'
-            ],
-            'Outlet': [
-                'Received long passes per 90',
-                'Progressive runs per 90',
-                'Accelerations per 90',
-                'Fouls suffered per 90',
-                'OutletMarker1'
-            ],
-            'Ball Security': [
-                'Accurate passes, %',
-            ],
+            'Goal Focus': {
+                'xG per 90': 0.33,
+                'Shots per 90': 0.34,
+                'Touches in box per 90': 0.33
+            },
+            'Takeon': {
+                'Dribbles per 90': 0.7,
+                'Successful dribbles, %': 0.3
+            },
+            'Creativity': {
+                'xA per 90': 0.34,
+                'Key passes per 90': 0.33,
+                'Passes to penalty area per 90': 0.33
+            },
+            'Outlet': {
+                'Received long passes per 90': 0.1,
+                'Progressive runs per 90': 0.4,
+                'Fouls suffered per 90': 0.2,
+                'OutletMarker1': 0.3
+            },
+            'Ball Security': {
+                'Accurate passes, %': 1.0
+            }
         },
         'roles': {
             'Outlet': {
@@ -294,28 +388,28 @@ POSITION_CONFIGS = {
                 'Takeon': 0.1,
                 'Creativity': 0.15,
                 'Outlet': 0.45,
-                'Ball Security': 0.2
+                'Ball Security': 0.1
             },
             'Creator': {
                 'Goal Focus': 0.1,
                 'Takeon': 0.1,
                 'Creativity': 0.4,
                 'Outlet': 0.1,
-                'Ball Security': 0.3
+                'Ball Security': 0.0
             },
             'Goal-Driven': {
                 'Goal Focus': 0.4,
                 'Takeon': 0.15,
                 'Creativity': 0.1,
                 'Outlet': 0.2,
-                'Ball Security': 0.15
+                'Ball Security': 0.0
             },
             'One on One': {
                 'Goal Focus': 0.0,
                 'Takeon': 0.5,
                 'Creativity': 0.2,
                 'Outlet': 0.2,
-                'Ball Security': 0.1
+                'Ball Security': 0.0
             },
         }
     }
@@ -335,14 +429,19 @@ def add_custom_metrics(df):
     df['Duels Contested'] = df['Aerial duels per 90'] + df['Defensive duels per 90']
     # EFx Prog. Pass
     df['EFx Prog. Pass'] = (df['Progressive passes per 90'] * df['Accurate progressive passes, %']) / 100
-    # P2P
+    # Passes to Progressions
     df['P2P'] = df['Progressive passes per 90'] / df['Passes per 90']
-    # PPA Share
+    # Passes to Pen Area Penetrations
     df['PPA Share'] = df['Passes to penalty area per 90'] / df['Passes per 90']
+    #Prog Carries to Passes Received
+    df['PrgCarries_ToRec'] = df['Progressive runs per 90'] / df['Received passes per 90']
     # OutletMarker1
     df['OutletMarker1'] = df['Received passes per 90'] - df['Passes per 90']
     #xG per Shot
     df['xG per Shot'] = df['xG per 90'] / df['Shots per 90']
+    #Accurate crosses per 90
+    df['Acc. Crosses'] = df['Crosses per 90'] * df['Accurate crosses, %'] / 100
+
     return df
 
 def calculate_role_scores(df, position, min_minutes=1000, output_filename=None, role=None):
@@ -368,11 +467,14 @@ def calculate_role_scores(df, position, min_minutes=1000, output_filename=None, 
     aoi_mapping = config['aoi_mapping']
     role_weights = config['roles']
     
+    # Handle CB variants - both map to CB data
+    data_position = 'CB' if position in ['IP: CB', 'OOP: CB'] else position
+    
     # Use all players from the same position as reference population
-    reference_population = df[df['Position'] == position]
+    reference_population = df[df['Position'] == data_position]
     
     # Filter dataframe for specific position
-    filtered_df = df[df['Position'] == position]
+    filtered_df = df[df['Position'] == data_position]
     
     if len(filtered_df) == 0:
         return None
@@ -385,8 +487,12 @@ def calculate_role_scores(df, position, min_minutes=1000, output_filename=None, 
     
     # Flatten metric list for later use (remove duplicates)
     all_metrics = []
-    for metrics_list in aoi_mapping.values():
-        all_metrics.extend(metrics_list)
+    for metrics_config in aoi_mapping.values():
+        if isinstance(metrics_config, dict):
+            all_metrics.extend(metrics_config.keys())
+        else:
+            # Backward compatibility for lists
+            all_metrics.extend(metrics_config)
     all_metrics = list(set(all_metrics))  # Remove duplicates
         
     # Use list to extract just a copy of JUST required data
@@ -400,13 +506,37 @@ def calculate_role_scores(df, position, min_minutes=1000, output_filename=None, 
         metrics_df[f'{metric}_z'] = metrics_df[f'{metric}_z'].clip(-3, 3)
 
     # Calculating AOI scores by accumulating z-scores (sum and geometric mean)
-    for aoi, metrics_list in aoi_mapping.items():
-        z_metrics = [f'{metric}_z' for metric in metrics_list]
-        # Sum (current method)
-        metrics_df[f'{aoi}_Z_Sum'] = metrics_df[z_metrics].sum(axis=1)
-        # Geometric mean (shifted by +4)
-        shifted = metrics_df[z_metrics] + 4
-        metrics_df[f'{aoi}_GeoMean'] = shifted.apply(lambda row: gmean(row), axis=1)
+    for aoi, metrics_config in aoi_mapping.items():
+        # Calculate weighted sum
+        weighted_sum = 0
+        geo_mean_values = []
+        geo_mean_weights = []
+        
+        for metric, weight in metrics_config.items():
+            metric_z = f'{metric}_z'
+            if metric_z in metrics_df.columns:
+                # Weighted sum
+                weighted_sum += metrics_df[metric_z] * weight
+                # For geometric mean
+                geo_mean_values.append(metrics_df[metric_z] + 4)
+                geo_mean_weights.append(weight)
+        
+        metrics_df[f'{aoi}_Z_Sum'] = weighted_sum
+        
+        # Weighted geometric mean
+        if geo_mean_values and geo_mean_weights:
+            if len(geo_mean_values) == 1:
+                metrics_df[f'{aoi}_GeoMean'] = geo_mean_values[0]
+            else:
+                geo_df = pd.DataFrame(geo_mean_values).T
+                weighted_product = pd.Series(1.0, index=metrics_df.index)
+                
+                for i, weight in enumerate(geo_mean_weights):
+                    weighted_product *= geo_df.iloc[:, i] ** weight
+                
+                metrics_df[f'{aoi}_GeoMean'] = weighted_product
+        else:
+            metrics_df[f'{aoi}_GeoMean'] = pd.Series(4.0, index=metrics_df.index)
 
     # Calculate role scores by applying weights to AOI z-score sums (sum and geometric mean)
     for role_name, weights in role_weights.items():
@@ -425,11 +555,37 @@ def calculate_role_scores(df, position, min_minutes=1000, output_filename=None, 
         ref_std = reference_population[metric].std()
         ref_metrics_df[f'{metric}_z'] = (ref_metrics_df[metric] - ref_mean) / ref_std
         ref_metrics_df[f'{metric}_z'] = ref_metrics_df[f'{metric}_z'].clip(-3, 3)
-    for aoi, metrics_list in aoi_mapping.items():
-        z_metrics = [f'{metric}_z' for metric in metrics_list]
-        ref_metrics_df[f'{aoi}_Z_Sum'] = ref_metrics_df[z_metrics].sum(axis=1)
-        shifted = ref_metrics_df[z_metrics] + 4
-        ref_metrics_df[f'{aoi}_GeoMean'] = shifted.apply(lambda row: gmean(row), axis=1)
+    for aoi, metrics_config in aoi_mapping.items():
+        # Calculate weighted sum
+        weighted_sum = 0
+        geo_mean_values = []
+        geo_mean_weights = []
+        
+        for metric, weight in metrics_config.items():
+            metric_z = f'{metric}_z'
+            if metric_z in ref_metrics_df.columns:
+                # Weighted sum
+                weighted_sum += ref_metrics_df[metric_z] * weight
+                # For geometric mean
+                geo_mean_values.append(ref_metrics_df[metric_z] + 4)
+                geo_mean_weights.append(weight)
+        
+        ref_metrics_df[f'{aoi}_Z_Sum'] = weighted_sum
+        
+        # Weighted geometric mean
+        if geo_mean_values and geo_mean_weights:
+            if len(geo_mean_values) == 1:
+                ref_metrics_df[f'{aoi}_GeoMean'] = geo_mean_values[0]
+            else:
+                geo_df = pd.DataFrame(geo_mean_values).T
+                weighted_product = pd.Series(1.0, index=ref_metrics_df.index)
+                
+                for i, weight in enumerate(geo_mean_weights):
+                    weighted_product *= geo_df.iloc[:, i] ** weight
+                
+                ref_metrics_df[f'{aoi}_GeoMean'] = weighted_product
+        else:
+            ref_metrics_df[f'{aoi}_GeoMean'] = pd.Series(4.0, index=ref_metrics_df.index)
     for role_name, weights in role_weights.items():
         ref_metrics_df[f'{role_name}_Z_Score'] = 0
         ref_metrics_df[f'{role_name}_GeoMean_Z_Score'] = 0
