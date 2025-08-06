@@ -15,6 +15,83 @@ st.set_page_config(page_title="Role Score Analysis", layout="wide")
 st.title("Adv. Role Analysis & Custom Role Builder")
 st.markdown("Upload your own data to analyze with predefined roles OR create completely custom roles for your analysis.")
 
+# Color coding legend
+with st.expander("🎨 Score Color Guide", expanded=False):
+    st.markdown("""
+    **Role scores are color-coded to help you quickly assess performance levels:**
+    
+    🟢 **Excellent (80-100)**: Outstanding performance in this role
+    🟢 **Very Good (70-79)**: Strong performance, clearly above average
+    🟢 **Good (60-69)**: Solid performance, better than most
+    🟡 **Average (50-59)**: League average performance
+    🟠 **Below Average (40-49)**: Room for improvement
+    🔴 **Poor (30-39)**: Significant weaknesses in this role
+    🔴 **Very Poor (0-29)**: Critical deficiencies, major improvement needed
+    
+    *Note: Scores are relative to the dataset being analyzed and normalized to a 0-100 scale.*
+    """)
+
+def style_role_scores(df, score_columns):
+    """
+    Apply color styling to role score columns based on score ranges.
+    
+    Parameters:
+    df: DataFrame containing the data
+    score_columns: List of column names that contain role scores (should be 0-100 scale)
+    
+    Returns:
+    Styled DataFrame for display
+    """
+    def color_score(val):
+        """Apply color based on score value (0-100 scale)"""
+        if pd.isna(val):
+            return ''
+        
+        # Convert to numeric if possible, otherwise return no styling
+        try:
+            val = float(val)
+        except (ValueError, TypeError):
+            return ''
+        
+        # Define color thresholds
+        if val >= 80:
+            # Excellent (dark green)
+            return 'background-color: #1e7e34; color: white; font-weight: bold'
+        elif val >= 70:
+            # Very good (medium green)
+            return 'background-color: #28a745; color: white; font-weight: bold'
+        elif val >= 60:
+            # Good (light green)
+            return 'background-color: #6f9a37; color: white'
+        elif val >= 50:
+            # Average (yellow)
+            return 'background-color: #ffc107; color: black'
+        elif val >= 40:
+            # Below average (orange)
+            return 'background-color: #fd7e14; color: white'
+        elif val >= 30:
+            # Poor (light red)
+            return 'background-color: #e74c3c; color: white'
+        else:
+            # Very poor (dark red)
+            return 'background-color: #c82333; color: white; font-weight: bold'
+    
+    # Create a styler object
+    styler = df.style
+    
+    # Apply styling to score columns only - filter to numeric columns
+    for col in score_columns:
+        if col in df.columns and pd.api.types.is_numeric_dtype(df[col]):
+            styler = styler.applymap(color_score, subset=[col])
+    
+    # Format score columns to 1 decimal place - only numeric columns
+    format_dict = {col: '{:.1f}' for col in score_columns 
+                   if col in df.columns and pd.api.types.is_numeric_dtype(df[col])}
+    if format_dict:
+        styler = styler.format(format_dict)
+    
+    return styler
+
 # Universal metric groupings for custom roles
 METRIC_GROUPS = {
     'Ball Carrying': [
@@ -429,7 +506,10 @@ if df is not None:
                     display_cols.append('Best_Role_Fit')
                 display_cols += [col for col in fit_cols if col in role_scores_df.columns]
             
-            st.dataframe(role_scores_df[display_cols])
+            # Apply color coding to score columns (exclude Best_Role_Fit as it contains role names, not scores)
+            score_cols = [col for col in display_cols if col.endswith('_Fit') and col != 'Best_Role_Fit']
+            styled_df = style_role_scores(role_scores_df[display_cols], score_cols)
+            st.dataframe(styled_df, use_container_width=True)
 
             # League averages section
             st.header("📊 League Average Role Scores")
@@ -519,8 +599,11 @@ if df is not None:
                     first_avg_col = avg_cols[0].replace('_avg', '')
                     team_summary_display = team_summary_display.sort_values(first_avg_col, ascending=False)
                 
-                # Display the team summary table
-                st.dataframe(team_summary_display, use_container_width=True)
+                # Apply color coding to team summary table
+                score_cols = [col for col in team_summary_display.columns 
+                             if col not in ['Players'] and pd.api.types.is_numeric_dtype(team_summary_display[col])]
+                styled_team_display = style_role_scores(team_summary_display, score_cols)
+                st.dataframe(styled_team_display, use_container_width=True)
                 
                 # Create visualizations for team comparisons
                 if len(team_summary_display) > 1:  # Only show charts if we have multiple teams
@@ -782,7 +865,10 @@ if df is not None:
                 # Show results
                 show_cols = ['Player', 'Team within selected timeframe', 'Minutes played'] + [asp['name'] for asp in st.session_state['aspects']] + ['Custom_Role_Fit']
                 display_df = custom_scores_df[show_cols].sort_values('Custom_Role_Fit', ascending=False)
-                st.dataframe(display_df)
+                
+                # Apply color coding to the Custom_Role_Fit column
+                styled_custom_df = style_role_scores(display_df, ['Custom_Role_Fit'])
+                st.dataframe(styled_custom_df, use_container_width=True)
                 
                 # League averages for custom role
                 st.header("📊 League Average Custom Role Scores")
@@ -864,7 +950,11 @@ if df is not None:
                     if 'Custom_Role_Fit' in custom_team_display.columns:
                         custom_team_display = custom_team_display.sort_values('Custom_Role_Fit', ascending=False)
                     
-                    st.dataframe(custom_team_display, use_container_width=True)
+                    # Apply color coding to custom team display
+                    score_cols = [col for col in custom_team_display.columns 
+                                 if col not in ['Players'] and pd.api.types.is_numeric_dtype(custom_team_display[col])]
+                    styled_custom_team_display = style_role_scores(custom_team_display, score_cols)
+                    st.dataframe(styled_custom_team_display, use_container_width=True)
                     
                     # Visualizations for custom roles
                     if len(custom_team_display) > 1:
@@ -1024,8 +1114,9 @@ if df is not None:
                             role_players.columns = ['Player', 'Minutes', f'{role_name} Score']
                             role_players[f'{role_name} Score'] = role_players[f'{role_name} Score'].round(1)
                             
-                            # Show the players
-                            st.dataframe(role_players, use_container_width=True, hide_index=True)
+                            # Apply color coding to the score column
+                            styled_role_players = style_role_scores(role_players, [f'{role_name} Score'])
+                            st.dataframe(styled_role_players, use_container_width=True, hide_index=True)
                             
                             # Quick stats
                             col1, col2, col3 = st.columns(3)

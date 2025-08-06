@@ -21,27 +21,27 @@ POSITION_CONFIGS = {
                 'Dribbles per 90': 0.3
             },
             'Deep Pen': {
-                'EFx Prog. Pass': 0.5,
-                'Passes to final third per 90': 0.3,
-                'P2P': 0.2
+                'EFx Prog. Pass': 0.7,
+                'Passes to final third per 90': 0.3
+            },
+            'Prog. Tendency': {
+                'P2P': 0.7, #Rate of passes per progressive pass made.
+                'PPA Share': 0.3 #Rate of passes to PA compared to total passes.
             },
             'Adv Pen': {
-                'Passes to penalty area per 90': 0.3,
-                'Passes to final third per 90': 0.2,
-                'PPA Share': 0.3, #Rate of passes to PA compared to total passes.
+                'Passes to penalty area per 90': 1
             },
             'Creation': {
                 'xA per 90': 0.6,
                 'Key passes per 90': 0.4
             },
             'Ball Security': {
-                'Accurate passes, %': 0.7,
-                'Successful dribbles, %': 0.3
+                'Accurate passes, %': 0.8,
+                'Successful dribbles, %': 0.2
             },
             'Box-Crashing': {
-                'Touches in box per 90': 0.4,
-                'Successful attacking actions per 90': 0.3,
-                'xG per Shot': 0.3
+                'BoxTouchPerc': 0.6,
+                'xG per Shot': 0.4
             }
         },
         'roles': {
@@ -53,19 +53,21 @@ POSITION_CONFIGS = {
                 'Deep Pen': 0.0,
                 'Creation': 0.0,
                 'Box-Crashing': 0.0,
-                'Adv Pen': 0.0
+                'Adv Pen': 0.0,
+                'Prog. Tendency': 0.0
             },
-            'Midfield Conductor': {
+            'Midfield Conductor': { #Player who is safe with the ball and distributes forwards - they conduct their teams play.
                 'Duel Volume': 0.0,
-                'Ball Winning': 0.1,
-                'Ball Security': 0.5,
+                'Ball Winning': 0.0,
+                'Ball Security': 0.6,
                 'Mobility': 0.0,
-                'Deep Pen': 0.4,
+                'Deep Pen': 0.3,
                 'Creation': 0.0,
                 'Box-Crashing': 0.0,
-                'Adv Pen': 0.0
+                'Adv Pen': 0.0,
+                'Prog. Tendency': 0.1
             },
-            'Attacking Box-Crasher': {
+            'Box-Crasher': { #This is a player who is good at getting into the box and scoring.
                 'Duel Volume': 0.2,
                 'Ball Winning': 0.2,
                 'Ball Security': 0.0,
@@ -73,7 +75,8 @@ POSITION_CONFIGS = {
                 'Deep Pen': 0.0,
                 'Creation': 0.0,
                 'Box-Crashing': 0.6,
-                'Adv Pen': 0.0
+                'Adv Pen': 0.0,
+                'Prog. Tendency': 0.0
             },
             'Creative #10': {
                 'Duel Volume': 0.00,
@@ -83,7 +86,19 @@ POSITION_CONFIGS = {
                 'Deep Pen': 0.1,
                 'Creation': 0.5,
                 'Box-Crashing': 0.0,
-                'Adv Pen': 0.3
+                'Adv Pen': 0.3,
+                'Prog. Tendency': 0.0
+            },
+            'All-out Progressor': {
+                'Duel Volume': 0.0,
+                'Ball Winning': 0.0,
+                'Ball Security': 0.0,
+                'Mobility': 0.0,
+                'Deep Pen': 0.4,
+                'Creation': 0.0,
+                'Box-Crashing': 0.0,
+                'Adv Pen': 0.2,
+                'Prog. Tendency': 0.4
             }
         }
     },
@@ -106,7 +121,6 @@ POSITION_CONFIGS = {
             'Pass Pen': {
                 'Progressive passes per 90': 0.55,
                 'Passes to final third per 90': 0.45,
-
             },
             'Creation': {
                 'xA per 90': 0.5,
@@ -118,8 +132,9 @@ POSITION_CONFIGS = {
                 'Successful dribbles, %': 0.5
             },
             'Crossing': {
-                'Acc. Crosses': 0.8,
-                'Deep completed crosses per 90': 0.2
+                'Acc. Crosses': 0.3,
+                'Deep completed crosses per 90': 0.1,
+                'Cross Tendency': 0.6
             }
         },
         'roles': {
@@ -159,14 +174,14 @@ POSITION_CONFIGS = {
                 'Ball Security': 0.0,
                 'Crossing': 0.1,
             },
-            'Whipper': {
+            'Cross Whipper': {
                 'Winger Lockdown': 0.0,
                 'Defending': 0.0,
                 'Running Pen': 0.0,
                 'Pass Pen': 0.0,
-                'Creation': 0.4,
+                'Creation': 0.2,
                 'Ball Security': 0.0,
-                'Crossing': 0.6,
+                'Crossing': 0.8,
             },
             'Reliable Retainer': {
                 'Winger Lockdown': 0.1,
@@ -297,14 +312,14 @@ POSITION_CONFIGS = {
                 'Shots per 90': 0.5 #This is our proxy for the quantity of chances the player is able to generate.
             },
             'Box-Dominance': { 
-                'Touches in box per 90': 0.34,
+                'BoxTouchPerc': 0.34,
                 'xG per Shot': 0.33, #Idea is that shots inside the box carry more xG than shots outside the box, so higher avg xG per shot is better.
                 'Head goals per 90': 0.33 # You can't header outside the box
             },
             'Hold-up': { #weighted to favour players who get into more aerial duels - we are thinking of this as a "target forward"-focused AOI
                 'Received long passes per 90': 0.3,
                 'EFx Aerial Duels': 0.5,
-                'Offensive duels per 90': 0.2 #Off. duels are dribbles, but also just when players hold off other players whilst in poss. Lower weighting, but relevant.
+                'Offensive duels per 90': 0.2 #Off. duels are dribbles, but also just when players hold off other players whilst in poss.
             },
             'Link Up': {
                 'Received passes per 90': 0.33, #Not ideal as a measure, but more rec. passes = dropping in and linking up more.
@@ -317,8 +332,8 @@ POSITION_CONFIGS = {
                 'Passes to penalty area per 90': 0.33
             },
             'Ball Carrier': {
-                'Progressive runs per 90': 0.5, #how often do they carry the ball forward?
-                'Dribbles per 90': 0.5 #is the player someone who likes to carry?
+                'Progressive runs per 90': 0.7, #how often do they carry the ball forward?
+                'Dribbles per 90': 0.3 #is the player someone who likes to carry?
             }
         },
         'roles': {
@@ -326,8 +341,8 @@ POSITION_CONFIGS = {
                 'Goal Generation': 0.3,
                 'Hold-up': 0.4,
                 'Link Up': 0.1,
-                'Creativity': 0.1,
-                'Box-Dominance': 0.1,
+                'Creativity': 0.0,
+                'Box-Dominance': 0.2,
                 'Ball Carrier': 0.0
             },
             'Roaming Enabler': {
@@ -335,10 +350,10 @@ POSITION_CONFIGS = {
                 'Hold-up': 0.0,
                 'Link Up': 0.35,
                 'Creativity': 0.45,
-                'Box-Dominance': 0.0,
+                'Box-Dominance': 0.0, #Best work done outside the box.
                 'Ball Carrier': 0.2 #we want to avoid players who are too static - they need to ROAM.
             },
-            'Box-Dominator': {
+            'Box Dominator': {
                 'Goal Generation': 0.5,
                 'Hold-up': 0,
                 'Link Up': 0,
@@ -372,44 +387,52 @@ POSITION_CONFIGS = {
                 'Key passes per 90': 0.33,
                 'Passes to penalty area per 90': 0.33
             },
-            'Outlet': {
-                'Received long passes per 90': 0.1,
-                'Progressive runs per 90': 0.4,
-                'Fouls suffered per 90': 0.2,
-                'OutletMarker1': 0.3
+            'Outlet': { #Winger who gains the team yards.
+                'Received long passes per 90': 0.1, #How often are they getting high to receive?
+                'Progressive runs per 90': 0.6, #Biggest indicator of yards gained via an outlet
+                'Fouls suffered per 90': 0.1, #Part of gaining yards is winnning fouls
+                'OutletMarker1': 0.2 #Idea is that they receive more passes than they make.
             },
             'Ball Security': {
                 'Accurate passes, %': 1.0
+            },
+            'Crossing': {
+                'Acc. Crosses': 0.5, #How often is the player finding a teammate with a cross?
+                'Cross Tendency': 0.5 #How often is the player trying to cross proportionally to the number of passes they make?
             }
         },
         'roles': {
             'Outlet': {
-                'Goal Focus': 0.1,
-                'Takeon': 0.1,
-                'Creativity': 0.15,
-                'Outlet': 0.45,
-                'Ball Security': 0.1
+                'Goal Focus': 0.0,
+                'Takeon': 0.2,
+                'Creativity': 0.0,
+                'Outlet': 0.6,
+                'Ball Security': 0.2,
+                'Crossing': 0.0
             },
             'Creator': {
-                'Goal Focus': 0.1,
-                'Takeon': 0.1,
-                'Creativity': 0.4,
-                'Outlet': 0.1,
-                'Ball Security': 0.0
+                'Goal Focus': 0.0,
+                'Takeon': 0.0,
+                'Creativity': 0.7,
+                'Outlet': 0.0,
+                'Ball Security': 0.0,
+                'Crossing': 0.3
             },
             'Goal-Driven': {
-                'Goal Focus': 0.4,
-                'Takeon': 0.15,
-                'Creativity': 0.1,
-                'Outlet': 0.2,
-                'Ball Security': 0.0
+                'Goal Focus': 0.8,
+                'Takeon': 0.1,
+                'Creativity': 0.0,
+                'Outlet': 0.1,
+                'Ball Security': 0.0,
+                'Crossing': 0.0
             },
             'One on One': {
                 'Goal Focus': 0.0,
-                'Takeon': 0.5,
-                'Creativity': 0.2,
-                'Outlet': 0.2,
-                'Ball Security': 0.0
+                'Takeon': 0.8,
+                'Creativity': 0.1,
+                'Outlet': 0.1,
+                'Ball Security': 0.0,
+                'Crossing': 0.0
             },
         }
     }
@@ -441,6 +464,10 @@ def add_custom_metrics(df):
     df['xG per Shot'] = df['xG per 90'] / df['Shots per 90']
     #Accurate crosses per 90
     df['Acc. Crosses'] = df['Crosses per 90'] * df['Accurate crosses, %'] / 100
+    #BoxCrashingMetric
+    df['BoxTouchPerc'] = df['Touches in box per 90'] / df['Received passes per 90']
+    #Cross Tendency
+    df['Cross Tendency'] = df['Crosses per 90'] / df['Passes per 90']
 
     return df
 
