@@ -432,7 +432,7 @@ if df is not None:
     st.header("⚙️ Analysis Mode")
     analysis_mode = st.radio(
         "Choose your analysis approach:",
-        ["🎯 Predefined Roles", "🛠️ Custom Role Builder", "🏆 Team Analysis"],
+        ["🎯 Predefined Roles", "🛠️ Custom Role Builder", "🧑🏼‍🔬 Squad Gap Analysis"],
         help="Use predefined roles for individual analysis, create custom roles, or analyze team strengths and weaknesses"
     )
     
@@ -994,7 +994,7 @@ if df is not None:
             st.info("Add at least one aspect and assign weights to run custom role analysis.")
 
     else:  # Team Analysis mode
-        st.header(f"🏆 Team Analysis for {position} Position")
+        st.header(f"🏆 Squad Gap Analysis for {position} Position")
         
         # Calculate role scores for gap analysis
         role_scores_df = calculate_role_scores(df, position, min_minutes=min_minutes)
@@ -1012,7 +1012,7 @@ if df is not None:
             team_players = role_scores_df[role_scores_df['Team within selected timeframe'] == selected_team]
             
             if len(team_players) > 0:
-                st.subheader(f"📊 {selected_team} - Gap Analysis")
+                st.subheader(f"📊 {selected_team} - Squad Gap Analysis")
                 
                 # Calculate team averages and gaps
                 role_cols = [col for col in role_scores_df.columns if col.endswith('_Fit') and col != 'Best_Role_Fit']
@@ -1042,34 +1042,37 @@ if df is not None:
                     role_name = role_col.replace('_Fit', '')
                     team_avg = team_players[role_col].mean()
                     league_avg = role_scores_df[role_col].mean()
-                    gap = team_avg - league_avg
+                    
+                    # Count players above league average for this role
+                    players_above_avg = len(team_players[team_players[role_col] > league_avg])
+                    total_team_players = len(team_players)
                     
                     # Store for later use
                     team_averages[role_name] = team_avg
                     league_averages[role_name] = league_avg
                     
-                    # Classify gap severity
-                    if gap < -5.0:
-                        status = "🔴 CRITICAL"
+                    # New 'past the post' classification system
+                    if players_above_avg == 0:
+                        status = "🔴 LACK OF COVERAGE"
                         priority = 1
-                    elif gap < -2.0:
-                        status = "🟡 MINOR"
-                        priority = 2
-                    elif gap > 2.0:
-                        status = "✅ STRENGTH"
+                    elif players_above_avg == 1:
+                        status = "✅ SOMEONE CAN DO IT"
+                        priority = 3
+                    elif players_above_avg >= 2:
+                        status = "🟢 EXCELLENT COVERAGE"
                         priority = 4
                     else:
-                        status = "⚪ AVERAGE"
-                        priority = 3
+                        status = "⚪ AVERAGE COVERAGE"
+                        priority = 2
                     
                     gap_data.append({
                         "Role": role_name,
+                        "Players Above Average": f"{players_above_avg}/{total_team_players}",
                         "Team Average": f"{team_avg:.1f}",
                         "League Average": f"{league_avg:.1f}",
-                        "Gap": f"{gap:+.1f}",
                         "Status": status,
                         "Priority": priority,
-                        "Gap_Value": gap  # For sorting
+                        "Players_Count": players_above_avg  # For sorting
                     })
                 
                 # Create DataFrame for display
@@ -1086,12 +1089,12 @@ if df is not None:
                 
                 # Apply sorting
                 if sort_by == "Gap Severity":
-                    gap_df = gap_df.sort_values(['Priority', 'Gap_Value'])
+                    gap_df = gap_df.sort_values(['Priority', 'Players_Count'])
                 else:
                     gap_df = gap_df.sort_values('Role')
                 
                 # Display gap analysis table
-                display_df = gap_df[['Role', 'Team Average', 'League Average', 'Gap', 'Status']].copy()
+                display_df = gap_df[['Role', 'Players Above Average', 'Team Average', 'League Average', 'Status']].copy()
                 st.dataframe(display_df, use_container_width=True, hide_index=True)
                 
                 # Player breakdown section
