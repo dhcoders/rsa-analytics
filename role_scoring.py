@@ -532,128 +532,77 @@ def calculate_role_scores(df, position, min_minutes=1000, output_filename=None, 
         metrics_df[f'{metric}_z'] = (metrics_df[metric] - ref_mean) / ref_std
         metrics_df[f'{metric}_z'] = metrics_df[f'{metric}_z'].clip(-3, 3)
 
-    # Calculating AOI scores by accumulating z-scores (sum and geometric mean)
+    # Calculating AOI scores by accumulating z-scores
     for aoi, metrics_config in aoi_mapping.items():
         # Calculate weighted sum
         weighted_sum = 0
-        geo_mean_values = []
-        geo_mean_weights = []
         
         for metric, weight in metrics_config.items():
             metric_z = f'{metric}_z'
             if metric_z in metrics_df.columns:
                 # Weighted sum
                 weighted_sum += metrics_df[metric_z] * weight
-                # For geometric mean
-                geo_mean_values.append(metrics_df[metric_z] + 4)
-                geo_mean_weights.append(weight)
         
         metrics_df[f'{aoi}_Z_Sum'] = weighted_sum
-        
-        # Weighted geometric mean
-        if geo_mean_values and geo_mean_weights:
-            if len(geo_mean_values) == 1:
-                metrics_df[f'{aoi}_GeoMean'] = geo_mean_values[0]
-            else:
-                geo_df = pd.DataFrame(geo_mean_values).T
-                weighted_product = pd.Series(1.0, index=metrics_df.index)
-                
-                for i, weight in enumerate(geo_mean_weights):
-                    weighted_product *= geo_df.iloc[:, i] ** weight
-                
-                metrics_df[f'{aoi}_GeoMean'] = weighted_product
-        else:
-            metrics_df[f'{aoi}_GeoMean'] = pd.Series(4.0, index=metrics_df.index)
 
-    # Calculate role scores by applying weights to AOI z-score sums (sum and geometric mean)
+    # Calculate role scores by applying weights to AOI z-score sums
     for role_name, weights in role_weights.items():
-        # Sum-based
         metrics_df[f'{role_name}_Z_Score'] = 0
-        # Geometric mean-based
-        metrics_df[f'{role_name}_GeoMean_Z_Score'] = 0
         for aoi, weight in weights.items():
             metrics_df[f'{role_name}_Z_Score'] += metrics_df[f'{aoi}_Z_Sum'] * weight
-            metrics_df[f'{role_name}_GeoMean_Z_Score'] += metrics_df[f'{aoi}_GeoMean'] * weight
 
-    # Calculate role scores for REFERENCE POPULATION to get proper min/max (for both sum and geometric mean)
+    # Calculate role scores for REFERENCE POPULATION to get proper min/max
     ref_metrics_df = reference_population[['Player', 'Team within selected timeframe', 'Minutes played'] + all_metrics].copy()
     for metric in all_metrics:
         ref_mean = reference_population[metric].mean()
         ref_std = reference_population[metric].std()
         ref_metrics_df[f'{metric}_z'] = (ref_metrics_df[metric] - ref_mean) / ref_std
         ref_metrics_df[f'{metric}_z'] = ref_metrics_df[f'{metric}_z'].clip(-3, 3)
+    
     for aoi, metrics_config in aoi_mapping.items():
         # Calculate weighted sum
         weighted_sum = 0
-        geo_mean_values = []
-        geo_mean_weights = []
         
         for metric, weight in metrics_config.items():
             metric_z = f'{metric}_z'
             if metric_z in ref_metrics_df.columns:
                 # Weighted sum
                 weighted_sum += ref_metrics_df[metric_z] * weight
-                # For geometric mean
-                geo_mean_values.append(ref_metrics_df[metric_z] + 4)
-                geo_mean_weights.append(weight)
         
         ref_metrics_df[f'{aoi}_Z_Sum'] = weighted_sum
-        
-        # Weighted geometric mean
-        if geo_mean_values and geo_mean_weights:
-            if len(geo_mean_values) == 1:
-                ref_metrics_df[f'{aoi}_GeoMean'] = geo_mean_values[0]
-            else:
-                geo_df = pd.DataFrame(geo_mean_values).T
-                weighted_product = pd.Series(1.0, index=ref_metrics_df.index)
-                
-                for i, weight in enumerate(geo_mean_weights):
-                    weighted_product *= geo_df.iloc[:, i] ** weight
-                
-                ref_metrics_df[f'{aoi}_GeoMean'] = weighted_product
-        else:
-            ref_metrics_df[f'{aoi}_GeoMean'] = pd.Series(4.0, index=ref_metrics_df.index)
+    
     for role_name, weights in role_weights.items():
         ref_metrics_df[f'{role_name}_Z_Score'] = 0
-        ref_metrics_df[f'{role_name}_GeoMean_Z_Score'] = 0
         for aoi, weight in weights.items():
             ref_metrics_df[f'{role_name}_Z_Score'] += ref_metrics_df[f'{aoi}_Z_Sum'] * weight
-            ref_metrics_df[f'{role_name}_GeoMean_Z_Score'] += ref_metrics_df[f'{aoi}_GeoMean'] * weight
     for role_name in role_weights.keys():
-        # Sum-based fit
+        # Calculate role fit scores (0-100 scale)
         ref_min_z = ref_metrics_df[f'{role_name}_Z_Score'].min()
         ref_max_z = ref_metrics_df[f'{role_name}_Z_Score'].max()
         metrics_df[f'{role_name}_Fit'] = 100 * (metrics_df[f'{role_name}_Z_Score'] - ref_min_z) / (ref_max_z - ref_min_z)
-        # GeoMean-based fit
-        ref_min_g = ref_metrics_df[f'{role_name}_GeoMean_Z_Score'].min()
-        ref_max_g = ref_metrics_df[f'{role_name}_GeoMean_Z_Score'].max()
-        metrics_df[f'{role_name}_GeoMean_Fit'] = 100 * (metrics_df[f'{role_name}_GeoMean_Z_Score'] - ref_min_g) / (ref_max_g - ref_min_g)
+    
     roles = list(role_weights.keys())
     for role_name in roles:
         metrics_df[f'{role_name}_Rank'] = metrics_df[f'{role_name}_Fit'].rank(ascending=False)
-        metrics_df[f'{role_name}_GeoMean_Rank'] = metrics_df[f'{role_name}_GeoMean_Fit'].rank(ascending=False)
     metrics_df['Best_Role_Fit'] = metrics_df[[f'{role_name}_Fit' for role_name in roles]].idxmax(axis=1)
     metrics_df['Best_Role_Fit'] = metrics_df['Best_Role_Fit'].str.replace('_Fit', '')
-    metrics_df['Best_Role_GeoMean_Fit'] = metrics_df[[f'{role_name}_GeoMean_Fit' for role_name in roles]].idxmax(axis=1)
-    metrics_df['Best_Role_GeoMean_Fit'] = metrics_df['Best_Role_GeoMean_Fit'].str.replace('_GeoMean_Fit', '').str.replace('_Fit', '')
 
     # If a specific role is requested, filter columns
     if role is not None:
         if role not in role_weights:
             raise ValueError(f"Role '{role}' not found for position '{position}'. Available: {list(role_weights.keys())}")
         base_cols = ['Player', 'Team within selected timeframe', 'Minutes played']
-        # Always include Best_Role_Fit and Best_Role_GeoMean_Fit if present
+        # Always include Best_Role_Fit if present
         extra_cols = []
-        for col in ['Best_Role_Fit', 'Best_Role_GeoMean_Fit']:
+        for col in ['Best_Role_Fit']:
             if col in metrics_df.columns:
                 extra_cols.append(col)
         role_cols = [
-            f'{role}_Z_Score', f'{role}_Fit', f'{role}_Rank',
-            f'{role}_GeoMean_Z_Score', f'{role}_GeoMean_Fit', f'{role}_GeoMean_Rank'
+            f'{role}_Z_Score', f'{role}_Fit', f'{role}_Rank'
         ]
         aoi_cols = []
         for aoi in role_weights[role].keys():
-            aoi_cols += [f'{aoi}_Z_Sum', f'{aoi}_GeoMean']
+            aoi_cols += [f'{aoi}_Z_Sum']
         cols_to_return = base_cols + extra_cols + aoi_cols + role_cols
         cols_to_return = [col for col in cols_to_return if col in metrics_df.columns]
         return metrics_df[cols_to_return]
