@@ -439,30 +439,27 @@ if df is not None:
     # Sidebar filters
     st.sidebar.header("Filters")
     
-    # Position selection (common to both modes)
-    if analysis_mode == "🎯 Predefined Roles":
-        data_positions = set(df['Position'].unique())
-        config_positions = list(POSITION_CONFIGS.keys())
-        
-        available_positions = []
-        for config_pos in config_positions:
-            # Handle CB variants - both map to CB data
-            if config_pos in ['IP: CB', 'OOP: CB']:
-                if 'CB' in data_positions:
-                    available_positions.append(config_pos)
-            else:
-                # Regular position matching
-                if config_pos in data_positions:
-                    available_positions.append(config_pos)
-        
-        available_positions = sorted(available_positions)
-        
-        if not available_positions:
-            st.warning("No supported positions found in the data. Supported positions: " + 
-                      ", ".join(POSITION_CONFIGS.keys()))
-            st.stop()
-    else:
-        available_positions = sorted(df['Position'].unique())
+    # Position selection (common to all modes)
+    data_positions = set(df['Position'].unique())
+    config_positions = list(POSITION_CONFIGS.keys())
+    
+    available_positions = []
+    for config_pos in config_positions:
+        # Handle CB variants - both map to CB data
+        if config_pos in ['IP: CB', 'OOP: CB']:
+            if 'CB' in data_positions:
+                available_positions.append(config_pos)
+        else:
+            # Regular position matching
+            if config_pos in data_positions:
+                available_positions.append(config_pos)
+    
+    available_positions = sorted(available_positions)
+    
+    if not available_positions:
+        st.warning("No supported positions found in the data. Supported positions: " + 
+                  ", ".join(POSITION_CONFIGS.keys()))
+        st.stop()
     
     position = st.sidebar.selectbox(
         "Select Position",
@@ -496,10 +493,9 @@ if df is not None:
             base_cols = ['Player', 'Team within selected timeframe', 'Minutes played', 'Best_Role_Fit']
             if selected_role == 'All':
                 fit_cols = [col for col in role_scores_df.columns if (col.endswith('_Fit') and col != 'Best_Role_Fit')]
-                gmean_fit_cols = [col for col in role_scores_df.columns if col.endswith('_GeoMean_Fit')]
-                display_cols = list(dict.fromkeys(base_cols + fit_cols + gmean_fit_cols))
+                display_cols = list(dict.fromkeys(base_cols + fit_cols))
             else:
-                fit_cols = [f'{selected_role}_Fit', f'{selected_role}_GeoMean_Fit']
+                fit_cols = [f'{selected_role}_Fit']
                 # Always include Best_Role_Fit if present
                 display_cols = ['Player', 'Team within selected timeframe', 'Minutes played']
                 if 'Best_Role_Fit' in role_scores_df.columns:
@@ -516,7 +512,7 @@ if df is not None:
             st.markdown(f"Average role fit scores across all {len(role_scores_df)} {position} players in the league")
             
             # Calculate league averages for role fit scores
-            league_avg_cols = [col for col in role_scores_df.columns if col.endswith('_Fit') or col.endswith('_GeoMean_Fit')]
+            league_avg_cols = [col for col in role_scores_df.columns if col.endswith('_Fit')]
             numeric_league_cols = []
             for col in league_avg_cols:
                 if pd.api.types.is_numeric_dtype(role_scores_df[col]):
@@ -526,7 +522,7 @@ if df is not None:
                 league_averages = {}
                 for col in numeric_league_cols:
                     avg_score = role_scores_df[col].mean()
-                    league_averages[col.replace('_Fit', '').replace('_GeoMean', ' (GeoMean)')] = round(avg_score, 1)
+                    league_averages[col.replace('_Fit', '')] = round(avg_score, 1)
                 
                 # Display league averages in columns
                 if len(league_averages) <= 4:
@@ -559,7 +555,7 @@ if df is not None:
             
             # Calculate team averages for role fit scores
             team_summary_cols = ['Team within selected timeframe']
-            role_fit_cols = [col for col in role_scores_df.columns if col.endswith('_Fit') or col.endswith('_GeoMean_Fit')]
+            role_fit_cols = [col for col in role_scores_df.columns if col.endswith('_Fit')]
             
             # Filter to only numeric columns to avoid aggregation errors
             numeric_role_fit_cols = []
@@ -584,10 +580,8 @@ if df is not None:
                 team_summary_display = team_summary[avg_cols + ['Players']].copy()
                 
                 # Calculate overall average level across all roles for each team
-                # Only use the main role fit scores (exclude GeoMean for cleaner calculation)
-                main_role_avg_cols = [col for col in avg_cols if not 'GeoMean' in col]
-                if len(main_role_avg_cols) > 0:
-                    team_summary_display['Average_Level'] = team_summary_display[main_role_avg_cols].mean(axis=1).round(1)
+                if len(avg_cols) > 0:
+                    team_summary_display['Average_Level'] = team_summary_display[avg_cols].mean(axis=1).round(1)
                 
                 # Rename columns for better display
                 team_summary_display.columns = [col.replace('_avg', '') for col in team_summary_display.columns]
@@ -609,8 +603,8 @@ if df is not None:
                 if len(team_summary_display) > 1:  # Only show charts if we have multiple teams
                     st.subheader("📊 Team Role Comparison Charts")
                     
-                    # Get role fit columns for visualization (exclude GeoMean for cleaner charts)
-                    viz_cols = [col for col in team_summary_display.columns if not col.endswith('_GeoMean_Fit') and col != 'Players' and col != 'Average_Level']
+                    # Get role fit columns for visualization
+                    viz_cols = [col for col in team_summary_display.columns if col != 'Players' and col != 'Average_Level']
                     
                     if len(viz_cols) > 0:
                         # Create tabs for different visualizations
@@ -1147,66 +1141,6 @@ if df is not None:
                                 st.write(f"• {player_row['Player']}: {player_score:.1f} ({diff:+.1f}) {status}")
                         else:
                             st.warning(f"No data available for {role_name}")
-                
-                # Summary metrics
-                st.subheader("📈 Gap Analysis Summary")
-                
-                critical_gaps = len(gap_df[gap_df['Status'] == '🔴 CRITICAL'])
-                minor_gaps = len(gap_df[gap_df['Status'] == '🟡 MINOR'])
-                strengths = len(gap_df[gap_df['Status'] == '✅ STRENGTH'])
-                
-                col1, col2, col3, col4 = st.columns(4)
-                
-                with col1:
-                    st.metric("🔴 Critical Gaps", critical_gaps)
-                
-                with col2:
-                    st.metric("🟡 Minor Gaps", minor_gaps)
-                
-                with col3:
-                    st.metric("✅ Strengths", strengths)
-                
-                with col4:
-                    overall_team_avg = np.mean(list(team_averages.values()))
-                    overall_league_avg = np.mean(list(league_averages.values()))
-                    overall_gap = overall_team_avg - overall_league_avg
-                    st.metric("📊 Overall Gap", f"{overall_gap:+.1f}")
-                
-                # Priority recommendations
-                critical_roles = gap_df[gap_df['Status'] == '🔴 CRITICAL']['Role'].tolist()
-                minor_roles = gap_df[gap_df['Status'] == '🟡 MINOR']['Role'].tolist()
-                
-                if critical_gaps > 0 or minor_gaps > 0:
-                    st.subheader("🎯 Priority Areas for Improvement")
-                    
-                    if critical_gaps > 0:
-                        st.markdown("**🔴 Critical Priority:**")
-                        for role in critical_roles:
-                            role_gap = gap_df[gap_df['Role'] == role]['Gap_Value'].iloc[0]
-                            st.write(f"• **{role}**: {role_gap:.1f} below league average")
-                    
-                    if minor_gaps > 0:
-                        st.markdown("**🟡 Secondary Priority:**")
-                        for role in minor_roles:
-                            role_gap = gap_df[gap_df['Role'] == role]['Gap_Value'].iloc[0]
-                            st.write(f"• **{role}**: {role_gap:.1f} below league average")
-                
-                else:
-                    st.success("🎉 **Excellent!** Your team is at or above league average in all roles!")
-                
-                # Export functionality
-                gap_export_df = gap_df[['Role', 'Team Average', 'League Average', 'Gap', 'Status']].copy()
-                gap_csv = gap_export_df.to_csv(index=False)
-                st.download_button(
-                    label="📥 Download gap analysis as CSV",
-                    data=gap_csv,
-                    file_name=f"{selected_team}_{position}_gap_analysis.csv",
-                    mime='text/csv'
-                )
-                
-            else:
-                st.warning(f"No {position} players found for {selected_team} with ≥{min_minutes} minutes played")
-        
         else:
             st.warning(f"No data available for position: {position}")
 
